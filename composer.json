@@ -1,0 +1,35 @@
+{
+    "name": "dpi/layout-builder-bundle",
+    "type": "library",
+    "require": {
+        "php": ">=8.3"
+    },
+    "license": "BSD-3-Clause",
+    "authors": [
+        {
+            "name": "dpi",
+            "email": "pro@danielph.in"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "Dpi\\LayoutBuilderBundle\\": "src/",
+            "Dpi\\LayoutBuilderBundle\\tests\\": "tests/"
+        }
+    },
+    "require-dev": {
+        "drupal/core": "^10.5 || ^11.2",
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpstan/phpstan-strict-rules": "^2.0",
+        "phpstan/phpstan": "^2.1",
+        "mglaman/phpstan-drupal": "^2.0",
+        "phpstan/phpstan-deprecation-rules": "^2.0",
+        "phpstan/extension-installer": "^1.4"
+    },
+    "config": {
+        "allow-plugins": {
+            "drupal/core-composer-scaffold": false,
+            "phpstan/extension-installer": true
+        }
+    }
+}
