@@ -6,7 +6,7 @@ namespace Dpi\LayoutBuilderBundle\Component;
 
 use Drupal\Core\Block\Attribute\Block;
 
-final class BlockPlugin
+final class BlockPlugin implements ComponentInterface
 {
     /**
      * @phpstan-param array<string, mixed> $configuration

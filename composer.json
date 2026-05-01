@@ -22,14 +22,11 @@
         "friendsofphp/php-cs-fixer": "^3.95",
         "phpstan/phpstan-strict-rules": "^2.0",
         "phpstan/phpstan": "^2.1",
-        "mglaman/phpstan-drupal": "^2.0",
-        "phpstan/phpstan-deprecation-rules": "^2.0",
-        "phpstan/extension-installer": "^1.4"
+        "mglaman/phpstan-drupal": "^2.0"
     },
     "config": {
         "allow-plugins": {
-            "drupal/core-composer-scaffold": false,
-            "phpstan/extension-installer": true
+            "drupal/core-composer-scaffold": false
         }
     }
 }

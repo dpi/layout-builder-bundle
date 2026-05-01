@@ -4,7 +4,8 @@ declare(strict_types=1);
 
 namespace Dpi\LayoutBuilderBundle;
 
-use Drupal\block_content\BlockContentInterface;
+use Dpi\LayoutBuilderBundle\Component\ComponentInterface;
+use Drupal\block_content as BlockContent;
 use Drupal\Component\Uuid\UuidInterface;
 use Drupal\Core\Url;
 use Drupal\layout_builder\Field\LayoutSectionItemList;
@@ -12,14 +13,15 @@ use Drupal\layout_builder\Section;
 use Drupal\layout_builder\SectionComponent;
 
 /**
- * @todo a blockContentSectionComponentTemplate(string $className, callable $c).
- *
  * @implements \ArrayAccess<int, \Drupal\layout_builder\Section>
  */
 final class LayoutBuilder implements \ArrayAccess, \Countable
 {
     /** @var \SplObjectStorage<Entity\LayoutBuilderEntityInterface, self> */
     private static \SplObjectStorage $tracker;
+
+    /** @var (\Closure(LayoutBuilder $this, ComponentInterface): Section)|null */
+    public ?\Closure $sectionTemplate = null;
 
     private function __construct(
         private Entity\LayoutBuilderEntityInterface $entity,
@@ -36,50 +38,64 @@ final class LayoutBuilder implements \ArrayAccess, \Countable
     }
 
     /**
+     * @param-closure-this \Dpi\LayoutBuilderBundle\LayoutBuilder $template
+     *
+     * @param \Closure(ComponentInterface): Section $template
+     */
+    public function sectionTemplate(\Closure $template): void
+    {
+        $this->sectionTemplate = $template;
+        $this->sectionTemplate = $this->sectionTemplate->bindTo($this);
+    }
+
+    /**
      * Reconnect LayoutBuilder to the cloned entity instance.
      *
      * Handle the special case that causes the clone in entity forms to disconnect references:
      */
     public static function cloneFromNewEntity(Entity\LayoutBuilderEntityInterface $entity): void
     {
+        // @todo switch to tracker as we cannot guarantee $layoutBuilder, and remove the trait and interface^
         $entity->layoutBuilder = clone $entity->layoutBuilder;
         $entity->layoutBuilder->entity = $entity;
     }
 
     public function addToSection(
         Section $section,
-        BlockContentInterface|Component\BlockPlugin $item,
-        ?string $viewMode = null,
+        BlockContent\BlockContentInterface|ComponentInterface $item,
         string $region = 'content',
     ): static {
-        $id = $item instanceof BlockContentInterface
-          ? \sprintf('inline_block:%s', $item->bundle())
-          : $item->blockPluginId;
-
-        $configuration = $item instanceof BlockContentInterface
-          ? ['block_revision_id' => $item->getRevisionId() ?? throw new \Exception('Save it!')]
-          : $item->configuration;
+        $item = $item instanceof BlockContent\BlockContentInterface ? Component\BlockContent::create(blockContent: $item, configuration: []) : $item;
 
         $section->appendComponent(new SectionComponent(
             uuid: static::uuid()->generate(),
             region: $region,
             configuration: [
-                'id' => $id,
+                'id' => $item->blockPluginId,
                 'label_display' => false,
-            ] + [
-                ...(null !== $viewMode ? ['view_mode' => $viewMode] : []),
-            ] + $configuration,
+            ] + $item->configuration
         ));
 
         return $this;
     }
 
+    /**
+     * @phpstan-param Section|ComponentInterface|BlockContent\BlockContentInterface $value
+     */
     public function offsetSet(mixed $offset, mixed $value): void
     {
         if ($value instanceof Section) {
             $this->list()->appendSection($value);
+        } elseif ($value instanceof ComponentInterface || $value instanceof BlockContent\BlockContentInterface) {
+            $value = $value instanceof BlockContent\BlockContentInterface ? Component\BlockContent::create(blockContent: $value, configuration: []) : $value;
+
+            if (null !== $this->sectionTemplate) {
+                $this->list()->appendSection(($this->sectionTemplate)($value));
+            } else {
+                throw new \LogicException('Section template is not set. Call sectionTemplate beforehand with a closure.');
+            }
         } else {
-            throw new \LogicException('Not implemented');
+            throw new \LogicException('Not supported');
         }
     }
 

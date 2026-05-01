@@ -6,6 +6,7 @@ namespace Dpi\LayoutBuilderBundle\Entity;
 
 /**
  * @phpstan-require-implements \Dpi\LayoutBuilderBundle\Entity\LayoutBuilderEntityInterface
+ *
  * @property \Dpi\LayoutBuilderBundle\LayoutBuilder $layoutBuilder
  */
 trait LayoutBuilderEntityTrait
