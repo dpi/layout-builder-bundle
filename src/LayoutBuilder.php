@@ -87,7 +87,7 @@ final class LayoutBuilder implements \ArrayAccess, \Countable
         if ($value instanceof Section) {
             $this->list()->appendSection($value);
         } elseif ($value instanceof ComponentInterface || $value instanceof BlockContent\BlockContentInterface) {
-            $value = $value instanceof BlockContent\BlockContentInterface ? Component\BlockContent::create(blockContent: $value, configuration: []) : $value;
+            $value = $value instanceof BlockContent\BlockContentInterface ? Component\BlockContent::create(blockContent: $value) : $value;
 
             if (null !== $this->sectionTemplate) {
                 $this->list()->appendSection(($this->sectionTemplate)($value));
