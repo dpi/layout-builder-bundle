@@ -65,7 +65,7 @@ final class LayoutBuilder implements \ArrayAccess, \Countable
         BlockContent\BlockContentInterface|ComponentInterface $item,
         string $region = 'content',
     ): static {
-        $item = $item instanceof BlockContent\BlockContentInterface ? Component\BlockContent::create(blockContent: $item, configuration: []) : $item;
+        $item = $item instanceof BlockContent\BlockContentInterface ? Component\BlockContent::create(blockContent: $item) : $item;
 
         $section->appendComponent(new SectionComponent(
             uuid: static::uuid()->generate(),
